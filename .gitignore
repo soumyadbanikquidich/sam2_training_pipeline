@@ -1,0 +1,32 @@
+# Logs and checkpoints (large files)
+sam2_logs/
+*.pt
+*.pth
+!checkpoints/download_ckpts.sh
+
+# Temporary files
+tmp/
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Training data (download separately)
+dataset/images/
+dataset/masks/
+dataset/test_frames/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Keep documentation images
+!docs/*.png
+!docs/results/*.png

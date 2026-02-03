@@ -1,0 +1,24 @@
+# SAM2 Training Docker Image
+# Build: docker build -t sam2-training .
+# Run:   ./run_training_docker.sh
+
+FROM auto-label
+
+# Install training dependencies
+RUN pip install --no-cache-dir \
+    submitit \
+    hydra-core \
+    iopath \
+    omegaconf \
+    fvcore \
+    tensordict \
+    tensorboard \
+    pandas
+
+# Install SAM2 from the mounted volume (at runtime)
+# We can't do this at build time because we mount the repo
+
+WORKDIR /workspace
+
+# Default command
+CMD ["/bin/bash"]

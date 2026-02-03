@@ -1,0 +1,30 @@
+defaults:
+  - sam2.1_hiera_b+_MOSE_finetune
+  - _self_
+
+# Override dataset paths here
+data:
+  train:
+    datasets:
+      - _target_: training.dataset.vos_dataset.VOSDataset
+        training: true
+        video_dataset:
+          _target_: training.dataset.vos_raw_dataset.PNGRawDataset
+          img_folder: /workspace/dataset/images
+          gt_folder: /workspace/dataset/masks
+        sampler:
+          _target_: training.dataset.vos_sampler.RandomUniformSampler
+          num_frames: 1 # Reduced for single-frame sample
+          max_num_objects: 3
+        transforms:
+          _target_: training.dataset.transforms.Compose
+          transforms:
+            - _target_: training.dataset.transforms.Resize
+              size: 1024
+            - _target_: training.dataset.transforms.ToTensor
+            - _target_: training.dataset.transforms.Normalize
+              mean: [0.485, 0.456, 0.406]
+              std: [0.229, 0.224, 0.225]
+
+launcher:
+  experiment_log_dir: ./sam2_logs/custom_finetune
