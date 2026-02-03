@@ -1,79 +1,66 @@
 # SAM2 Training Pipeline
 
-Fine-tune Segment Anything Model 2 (SAM2) on custom video object segmentation datasets.
-
-**This is a standalone repository** - all dependencies are included.
+Fine-tune SAM2 on custom video segmentation datasets.
 
 ## Quick Start
 
 ```bash
-# 1. Download model checkpoints (one-time, ~1.5GB for base model)
+# 1. Download checkpoints (~1.5GB)
 cd checkpoints && ./download_ckpts.sh && cd ..
 
-# 2. Build the training image (one-time)
+# 2. Build Docker image
 docker build -t sam2-training -f Dockerfile.training .
 
-# 3. Prepare your dataset (if in YOLO format)
-python3 tools/yolo_to_sam2.py --input /path/to/yolo_dataset --output ./dataset
+# 3. Convert dataset (if YOLO format)
+python3 tools/yolo_to_sam2.py --input /path/to/yolo --output ./dataset
 
-# 4. Run training
+# 4. Train
 ./run_training_docker.sh
 
-# 5. Run inference with auto-detection
+# 5. Inference (auto-detect)
 docker run --gpus all -v "$(pwd):/workspace" sam2-training \
     python3 tools/inference_auto_detect.py \
         --image your_image.jpg \
         --checkpoint sam2_logs/custom_finetune/checkpoints/checkpoint.pt
 ```
 
-## Environment Variables
+## Config
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `SAM2_DATASET` | `./dataset` | Path to training dataset |
-| `SAM2_CONFIG` | `sam2.1_training/custom_finetune` | Hydra config name |
+| `SAM2_DATASET` | `./dataset` | Training data path |
+| `SAM2_CONFIG` | `sam2.1_training/custom_finetune` | Hydra config |
 
-## Project Structure
+## Structure
 
 ```
-sam2_training/
-├── checkpoints/             # Model weights (download_ckpts.sh)
-├── sam2/                    # SAM2 library code
-├── sam2_configs/            # Hydra configs (symlink to sam2/configs)
-├── training/                # Training code
-├── tools/                   # Utilities (dataset converter, inference)
-│   ├── inference_auto_detect.py  # Auto-detect players + segment
-│   ├── inference.py              # Manual point/box prompt
+├── checkpoints/          # Weights (run download_ckpts.sh)
+├── sam2/                 # SAM2 code
+├── training/             # Training scripts
+├── tools/
+│   ├── inference_auto_detect.py  # Auto-detect + segment
+│   ├── inference.py              # Manual prompt
 │   └── yolo_to_sam2.py           # Dataset converter
-├── Dockerfile.training      # Production Docker image
-├── run_training_docker.sh   # Training launcher
-└── run_inference_docker.sh  # Inference launcher
+├── Dockerfile.training
+├── run_training_docker.sh
+└── run_inference_docker.sh
 ```
 
-## Player Segmentation Results
+## Results (10 epochs)
 
-Fine-tuned for just **10 epochs** with automatic player detection (Grounding DINO + SAM2):
+![Segmentation](docs/hero_result.png)
 
-![Player Segmentation](docs/hero_result.png)
+| Frame | Detected | Confidence |
+|-------|----------|------------|
+| 1 | 5 | 0.88-0.97 |
+| 2 | 3 | 0.96-0.97 |
+| 3 | 4 | 0.91-0.97 |
+| 4 | 6 | 0.84-0.97 |
+| 5 | 7 | 0.76-0.97 |
 
-| Frame | Players Detected | Confidence Range |
-|-------|-----------------|------------------|
-| 1 | 5 | 0.88 - 0.97 |
-| 2 | 3 | 0.96 - 0.97 |
-| 3 | 4 | 0.91 - 0.97 |
-| 4 | 6 | 0.84 - 0.97 |
-| 5 | 7 | 0.76 - 0.97 |
+## Docs
 
-> More results in `docs/results/`
-
-## Documentation
-
-- [Quick Start](docs/QUICKSTART.md) - Get running in 5 minutes
-- [Detailed Guide](docs/DETAILED.md) - Step-by-step walkthrough
-- [Dataset Format](docs/DATASET.md) - Data preparation guide
-- [Stakeholder Report](docs/STAKEHOLDER_REPORT.md) - **Why Finetune? (Comparison)**
-- [Notes](docs/NOTES.md) - Troubleshooting and tips
-
-## License
-
-Apache 2.0 (see LICENSE)
+- [Quick Start](docs/QUICKSTART.md)
+- [Detailed Guide](docs/DETAILED.md)
+- [Dataset Format](docs/DATASET.md)
+- [Notes](docs/NOTES.md)
